@@ -1,16 +1,12 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Mar  6 09:49:58 2017
-
-@author: Agus
-"""
 import pandas as pd
 
 from skimage.measure import regionprops
 
 import moment_invariants as inv
 
+
 def crop_img(labeled_img, min_row, min_col, max_row, max_col, extra=10):
+    """Returns a crop of the image with a little extra if needed."""
     this_crop = labeled_img.copy()
     min_row = min_row-extra
     if min_row<0:
@@ -25,22 +21,24 @@ def crop_img(labeled_img, min_row, min_col, max_row, max_col, extra=10):
     if max_col>this_crop.shape[1]:
         max_col = this_crop.shape[1]
     
-    this_crop = this_crop[min_row:max_row,min_col:max_col]
+    this_crop = this_crop[min_row:max_row, min_col:max_col]
     return this_crop
 
 
 def extract_features(labeled, int_img=None):
+    """Returns a list with the extracted features from labeled and intensity
+    image"""
     out = []
     for label, props in enumerate(regionprops(labeled)):
         this_crop = crop_img(labeled, *props.bbox)
         
-        this_Zer = inv.zernike_invariants(this_crop, deg=8)
+        this_zer = inv.zernike_invariants(this_crop, deg=8)
         
-        this_Hu = inv.hu_invariants(this_crop)
+        this_hu = inv.hu_invariants(this_crop)
         
         this_out = [label]
-        this_out.extend(this_Hu)
-        this_out.extend(this_Zer)
+        this_out.extend(this_hu)
+        this_out.extend(this_zer)
         if int_img is not None:
             this_int_img = this_crop(int_img, *props.bbox)
             this_out.append(this_int_img)
@@ -49,6 +47,21 @@ def extract_features(labeled, int_img=None):
 
 
 def analyze_images(labeled_series, int_series=None):
+    """Generates a DataFrame with the features extracted from the list of
+    labeled images and int_series if given.
+
+    Parameters
+    ----------
+    labeled_series : list of np.arrays
+        list of labeled images from which to extract features
+    int_series : list of np.arrays
+        list of intensity images from which to extract features
+
+    Returns
+    -------
+    df : pandas.DataFrame
+        DataFrame with the extracted features for each image
+    """
     if int_series is None:
         int_series = [None] * len(labeled_series)
     assert labeled_series.shape == int_series.shape

@@ -1,8 +1,3 @@
-"""
-Created on Mon Mar  6 16:50:33 2017
-
-@author: agustin.corbat@gmail.com
-"""
 import os
 import pathlib
 import appdirs
@@ -17,7 +12,7 @@ import classify as clf
 data_dir = pathlib.Path(appdirs.user_data_dir('objpredict', 'LEC'))
 data_dir.mkdir(parents=True, exist_ok=True)
 
-#%% Load 
+
 def get_installed_pipelines():
     """Returns a dictionary of pipelines installed in current working directory
      and appdir with their filepaths."""
@@ -38,6 +33,7 @@ def install(path, name=None):
 
 
 def list_attrs():
+    """Generates a list of column names for Hu and Zernicke moments"""
     cols = []
     for i in range(1, 8+1):
         cols = cols + ['hu'+str(i),]
