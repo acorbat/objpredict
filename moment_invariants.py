@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Feb 24 18:08:18 2017
-
-@author: Agus
-"""
 import numpy as np
 
 import skimage.measure as meas
@@ -11,7 +5,6 @@ import skimage.measure as meas
 from mahotas.features import _zernike
 from mahotas import center_of_mass
 
-#%%
 
 def zernike_moments(im, radius, degree=8, cm=None):
     """
@@ -44,11 +37,11 @@ def zernike_moments(im, radius, degree=8, cm=None):
     """
     zvalues = []
     if cm is None:
-        c0,c1 = center_of_mass(im)
+        c0, c1 = center_of_mass(im)
     else:
-        c0,c1 = cm
+        c0, c1 = cm
 
-    Y,X = np.mgrid[:im.shape[0],:im.shape[1]]
+    Y, X = np.mgrid[:im.shape[0], :im.shape[1]]
     P = im.ravel()
 
     def rescale(C, centre):
@@ -77,8 +70,8 @@ def zernike_moments(im, radius, degree=8, cm=None):
     An.imag = (Yn/Dn)
 
     Ans = [An**p for p in range(2,degree+2)]
-    Ans.insert(0, An) # An**1
-    Ans.insert(0, np.ones_like(An)) # An**0
+    Ans.insert(0, An)  # An**1
+    Ans.insert(0, np.ones_like(An))  # An**0
     zvalues = {}
     for n in range(degree+1):
         for l in range(n+1):
@@ -87,12 +80,15 @@ def zernike_moments(im, radius, degree=8, cm=None):
                 zvalues[n, l] = (z)
     return zvalues
 
+
 def zernike_invariants(im, deg=3, dbg=None):
     """
     Ss = zernike_invariants(im, deg=3, dbg=None)
     Zernike invariants up to order "deg".
-    Returns a vector of Zernike seudoinvariants up to order "deg" of the image "im".
-    Image is rescaled with the factor (0.7/mu_00)^(1/2) so that its weight is always normalized to 0.7, and traslated to the center of mass.
+    Returns a vector of Zernike seudoinvariants up to order "deg" of the image
+    "im".
+    Image is rescaled with the factor (0.7/mu_00)^(1/2) so that its weight is
+    always normalized to 0.7, and traslated to the center of mass.
     Parameters
     ----------
     im : 2-ndarray
@@ -100,7 +96,8 @@ def zernike_invariants(im, deg=3, dbg=None):
     deg : integer, optional
         seudo invariants up to this order are computed (default: 3)
     dbg : list, optional
-        List where string with calculation of moments is appended to verify if these are computed adecuately.
+        List where string with calculation of moments is appended to verify if
+        these are computed adecuately.
     Returns
     -------
     Ss : 1-ndarray of floats
@@ -193,6 +190,7 @@ def zernike_invariants(im, deg=3, dbg=None):
 
 
 def hu_invariants(im):
+    """Calculates the Hu moments of the image"""
     props = meas.regionprops(im)
     nu = props[0]['moments_normalized']
     hu = hu_from_normalized_moments(nu)
@@ -200,6 +198,7 @@ def hu_invariants(im):
 
 
 def hu_from_normalized_moments(nu):
+    """Calculates the Hu moments from the normalized moments"""
     hu = np.zeros((8, ), dtype=np.double)
     t0 = nu[3, 0] + nu[1, 2]
     t1 = nu[2, 1] + nu[0, 3]
@@ -227,4 +226,5 @@ def hu_from_normalized_moments(nu):
     hu[7] = (nu[1, 1] * ( (nu[3, 0] + nu[1, 2]) ** 2 - (nu[0, 3] + nu[2, 1]) ** 2) -
              (nu[2, 0] - nu[0, 2]) * (nu[3, 0] + nu[1, 2] + nu[0, 3] + nu[2, 1])
              )
+
     return hu
